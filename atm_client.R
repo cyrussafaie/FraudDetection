@@ -21,7 +21,9 @@ t0 <- 0            # amount selected timestamp
 PINAccepted <- FALSE
 MesID <- ''
 
-
+sequencetest<-0
+alert_signal<-0
+timetest<-0			   
 # user defined handler
 ## event handler is expected to have two arguments:
 ### 1) visit_id (integer vector of unit length),
@@ -43,29 +45,64 @@ event_handler <- function(visit_id, atm_signal) {
     MesID <<- lst$MesID
     if (MesID == 'CARD_INSERT') {
         cardNumber <<- lst$value
+	    sequencetest<- sequencetest + 1
     }
+    else if (MesID == 'ESD_SENSOR_CODE')
+    {
+      sequencetest<- sequencetest + 1
+      
+				
+							 
+    }
+			  
+    
+    
+    else if (MesID == 'PIN_INIT_START')
+    {
+      sequencetest<- sequencetest + 1
+      
+    }
+    
+    
+    else if (MesID == 'AMOUNT_SEL') {
+      
+      timetest<<-Sys.time()
+      
+    }
+    
+    
+    else if (MesID == 'WDR_INIT_START')
+    {
+      
+      alert_signal<-0      
+      if (sequencetest < 3 | difftime(Sys.time(), timetest, unit="sec") > 8)
+      {
+        alert_signal <- 1
+        alerts_counter <<- alerts_counter + 1
+      }
+      
+      
+      
+    }
+    
     else if (MesID == 'CARD_REMOVED') {
-        # clean global vars
-        errorCode <<- 0
-        t0PIN <<- 0
-        t0 <<- 0
-        PINAccepted <<- FALSE
+      # clean global vars
+      errorCode <<- 0
+      t0PIN <<- 0
+      t0 <<- 0
+      PINAccepted <<- FALSE
+      sequencetest<-0
     }
     # else ...
     
-    # calc alert_signal example
-    alert_signal <- 0
-    if (difftime(now, initial_timestamp, unit="sec") > 30 && alerts_counter == 0)
-    {
-        alert_signal <- 1
-        alerts_counter <<- alerts_counter + 1
-    }
+   
     
     # store alert_signal in event_data dataframe
     event_data$alert_signal[event_counter] <<- alert_signal
     
     return(alert_signal)
 }
+
 
 
 parse_line <- function (line) {
