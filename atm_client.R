@@ -79,8 +79,8 @@ parse_line <- function (line) {
 # server options
 host <- "datastream.ilykei.com"
 port <- 30006
-login <- "Your login email"
-password <- "Your streaming server password"
+login <- "hsafaie@uchicago.edu"
+password <- "3w7WN6ln"
 stream_name <- "ATM"
 catch_handler_errors <- TRUE  # we recommend using TRUE during the test and FALSE during homework
 # make connection with your personal handler
